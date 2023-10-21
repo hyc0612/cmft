@@ -11,9 +11,15 @@
 #include "common/halffloat.h"
 #include "common/stb_image.h"
 
+
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include "common/stb_image_write.h"
+
 #include "cubemaputils.h"
 
 #include <string.h>
+#include <vector>
+using namespace std;
 
 namespace cmft
 {
@@ -312,6 +318,7 @@ namespace cmft
         ".ktx", //KTX
         ".tga", //TGA
         ".hdr", //HDR
+        ".png", //PNG
     };
 
     const char* getFilenameExtensionStr(ImageFileType::Enum _ft)
@@ -329,6 +336,7 @@ namespace cmft
         "KTX", //KTX
         "TGA", //TGA
         "HDR", //HDR
+        "PNG", //PNG
     };
 
     const char* getFileTypeStr(ImageFileType::Enum _ft)
@@ -431,6 +439,18 @@ namespace cmft
         OutputType::Null,
     };
 
+    static const OutputType::Enum s_pngValidOutputTypes[] =
+    {
+        OutputType::LatLong,
+        OutputType::HCross,
+        OutputType::VCross,
+        OutputType::HStrip,
+        OutputType::VStrip,
+        OutputType::FaceList,
+        OutputType::Octant,
+        OutputType::Null,
+    };
+
     const OutputType::Enum* getValidOutputTypes(ImageFileType::Enum _fileType)
     {
         if (ImageFileType::DDS == _fileType)
@@ -448,6 +468,10 @@ namespace cmft
         else if (ImageFileType::HDR == _fileType)
         {
             return s_hdrValidOutputTypes;
+        }
+        else if (ImageFileType::PNG == _fileType)
+        {
+            return s_pngValidOutputTypes;
         }
         else
         {
@@ -510,6 +534,10 @@ namespace cmft
         {
             return contains(_outputType, s_hdrValidOutputTypes);
         }
+        else if (ImageFileType::PNG == _fileType)
+        {
+            return contains(_outputType, s_pngValidOutputTypes);
+        }
 
         return false;
     }
@@ -554,6 +582,11 @@ namespace cmft
         TextureFormat::RGBE,
         TextureFormat::Null,
     };
+    static const TextureFormat::Enum s_pngValidFormats[] =
+    {
+        TextureFormat::RGBA8,
+        TextureFormat::Null,
+    };
 
     const TextureFormat::Enum* getValidTextureFormats(ImageFileType::Enum _fileType)
     {
@@ -572,6 +605,10 @@ namespace cmft
         else if (ImageFileType::HDR == _fileType)
         {
             return s_hdrValidFormats;
+        }
+        else if (ImageFileType::PNG == _fileType)
+        {
+            return s_pngValidFormats;
         }
         else
         {
@@ -633,6 +670,10 @@ namespace cmft
         else if (ImageFileType::HDR == _fileType)
         {
             return contains(_textureFormat, s_hdrValidFormats);
+        }
+        else if (ImageFileType::PNG == _fileType)
+        {
+            return contains(_textureFormat, s_pngValidFormats);
         }
 
         return false;
@@ -5614,6 +5655,22 @@ namespace cmft
         return result;
     }
 
+    bool imageSavePng(const char* _fileName, const Image& _image, AllocatorI* _allocator)
+    {
+        size_t write;
+        CMFT_UNUSED(write);
+
+        char fileName[CMFT_PATH_LEN];
+        strcpy(fileName, _fileName);
+        cmft::strlcat(fileName, getFilenameExtensionStr(ImageFileType::PNG), CMFT_PATH_LEN);
+
+        int stride_in_bytes = 4 * _image.m_width;
+
+        stbi_write_png(fileName, _image.m_width, _image.m_height, 4, _image.m_data, stride_in_bytes);
+
+        return true;
+    }
+
     bool imageSave(const Image& _image, const char* _fileName, ImageFileType::Enum _ft, TextureFormat::Enum _convertTo, AllocatorI* _allocator)
     {
         // Get image in desired format.
@@ -5646,6 +5703,10 @@ namespace cmft
             else if (ImageFileType::HDR == _ft)
             {
                 result = imageSaveHdr(_fileName, image, _allocator);
+            }
+            else if (ImageFileType::PNG == _ft)
+            {
+                result = imageSavePng(_fileName, image, _allocator);
             }
         }
         else

@@ -91,6 +91,7 @@ static const CliOptionMap s_validFileTypes[] =
     { "ktx", ImageFileType::KTX },
     { "tga", ImageFileType::TGA },
     { "hdr", ImageFileType::HDR },
+    { "png", ImageFileType::PNG },
     CLI_OPTION_MAP_TERMINATOR,
 };
 

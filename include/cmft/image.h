@@ -49,7 +49,7 @@ namespace cmft
             KTX,
             TGA,
             HDR,
-
+            PNG,
             Count
         };
     };
