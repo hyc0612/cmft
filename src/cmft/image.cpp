@@ -4677,6 +4677,33 @@ namespace cmft
         return true;
     }
 
+    bool imageLoadPng(Image& _image, Rw* _rw, AllocatorI* _allocator)
+    {
+        unsigned char* pixels;
+        int w, h, comp;
+
+        // pixels = stbi_load_from_memory((stbi_uc const*)_rw->m_file, _rw->m_size, &w, &h, &comp, 4);
+
+
+        unsigned char* data = stbi_load_from_file(_rw->m_file, &w, &h, &comp, 4);
+
+        // Fill image structure.
+        Image result;
+        result.m_width = w;
+        result.m_height = h;
+        result.m_dataSize = w*h*4;
+        result.m_format = TextureFormat::RGBA8;
+        result.m_numMips = 1;
+        result.m_numFaces = 1;
+        result.m_data = data;
+
+        // Output.
+        imageMove(_image, result, _allocator);
+
+        return true;
+    }
+
+
     static inline const char* readLine(Rw* _rw, RwSeekFn _rwSeekFn, RwReadFn _rwReadFn, char* _out, uint32_t _max)
     {
         _rwReadFn(_rw, _out, _max);
@@ -5046,6 +5073,18 @@ namespace cmft
         return false;
     }
 
+    static bool isPng(uint32_t _magic)
+    {
+        // { 137, 80, 78, 71, 13, 10, 26, 10 };
+        
+        if (((_magic >> 8) & 0xff) == 'P'
+            && (((_magic >> 16) & 0xff) == 'N')
+            && (((_magic >> 24) & 0xff) == 'G'))
+            return true;
+
+        return false;
+    }
+
     bool imageLoad(Image& _image, Rw* _rw, TextureFormat::Enum _convertTo, AllocatorI* _allocator)
     {
         bool didOpen = rwFileOpen(_rw, "rb");
@@ -5083,6 +5122,10 @@ namespace cmft
         else if (isTga(magic))
         {
             loaded = imageLoadTga(_image, _rw, _allocator);
+        }
+        else if (isPng(magic))
+        {
+            loaded = imageLoadPng(_image, _rw, _allocator);
         }
 
         if (!loaded)
