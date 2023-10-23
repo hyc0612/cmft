@@ -826,10 +826,12 @@ void printHelp()
             "          <ktx_textureFormat> = [rgb8,rgb16,rgb16f,rgb32f,rgba8,rgba16,rgba16f,rgba32f]\n"
             "          <tga_textureFormat> = [bgr8,bgra8]\n"
             "          <hdr_textureFormat> = [rgbe]\n"
+            "          <png_textureFormat> = [rgba8]\n"
             "          <dds_outputType> = [cubemap,latlong,hcross,vcross,hstrip,vstrip,facelist,octant]\n"
             "          <ktx_outputType> = [cubemap,latlong,hcross,vcross,hstrip,vstrip,facelist,octant]\n"
             "          <tga_outputType> = [latlong,hcross,vcross,hstrip,vstrip,facelist,octant]\n"
             "          <hdr_outputType> = [latlong,hcross,vcross,hstrip,vstrip,facelist,octant]\n"
+            "          <png_outputType> = [latlong, hcross, vcross, hstrip, vstrip, facelist, octant]\n"
             "    --silent                           Do not print any output.\n"
             "    --rgbm                             Encode image in RGBM.\n"
 
